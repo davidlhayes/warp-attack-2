@@ -1,0 +1,120 @@
+body {
+  text-align: center; }
+
+.wrapper {
+  width: 960px;
+  margin: 0 auto; }
+
+table {
+  border-collapse: collapse; }
+  table td {
+    width: 50px;
+    height: 75px; }
+
+#main td {
+  border: solid 1px green; }
+
+#tray td {
+  border: solid 1px orange; }
+
+.table {
+  width: 100%; }
+
+.cell {
+  border-left: solid 1px green;
+  border-top: solid 1px green;
+  float: left;
+  width: 60px;
+  height: 75px; }
+
+.cell:nth-child(10n+0) {
+  border-right: solid 1px green; }
+
+.cell:nth-last-child(-n+10) {
+  border-bottom: solid 1px green; }
+
+.token {
+  width: 56px;
+  height: 73px;
+  margin: 0 auto;
+  background-size: cover; }
+
+#b1 {
+  background-image: url("../assets/images/b1-small.png"); }
+
+#b2 {
+  background-image: url("../assets/images/b2-small.png"); }
+
+#b3 {
+  background-image: url("../assets/images/b3-small.png"); }
+
+#b4 {
+  background-image: url("../assets/images/b4-small.png"); }
+
+#b5 {
+  background-image: url("../assets/images/b5-small.png"); }
+
+#b6 {
+  background-image: url("../assets/images/b6-small.png"); }
+
+#b7 {
+  background-image: url("../assets/images/b7-small.png"); }
+
+#b8 {
+  background-image: url("../assets/images/b8-small.png"); }
+
+#b9 {
+  background-image: url("../assets/images/b9-small.png"); }
+
+#bm {
+  background-image: url("../assets/images/bm-small.png"); }
+
+#bs {
+  background-image: url("../assets/images/bs-small.png"); }
+
+#bf {
+  background-image: url("../assets/images/bf-small.png"); }
+
+#r1 {
+  background-image: url("../assets/images/r1-small.png"); }
+
+#r2 {
+  background-image: url("../assets/images/r2-small.png"); }
+
+#r3 {
+  background-image: url("../assets/images/r3-small.png"); }
+
+#r4 {
+  background-image: url("../assets/images/r4-small.png"); }
+
+#r5 {
+  background-image: url("../assets/images/r5-small.png"); }
+
+#r6 {
+  background-image: url("../assets/images/r6-small.png"); }
+
+#r7 {
+  background-image: url("../assets/images/r7-small.png"); }
+
+#r8 {
+  background-image: url("../assets/images/r8-small.png"); }
+
+#r9 {
+  background-image: url("../assets/images/r9-small.png"); }
+
+#rm {
+  background-image: url("../assets/images/rm-small.png"); }
+
+#rs {
+  background-image: url("../assets/images/rs-small.png"); }
+
+#rf {
+  background-image: url("../assets/images/rf-small.png"); }
+
+.red {
+  background-color: red; }
+
+.blue {
+  background-color: blue; }
+
+/*# sourceMappingURL=main.css.map */
