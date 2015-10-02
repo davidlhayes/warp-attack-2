@@ -1,7 +1,7 @@
 var app = angular.module('warp', ['ngRoute']);
 
 app.controller('BoardCtrl', ['$scope', '$route', '$http', function($scope, $route, $http) {
-  $http.get('localhost:3000/tokens').success(function(data) {
+  $http.get('/tokens').success(function(data) {
     console.log('fetched data');
     console.log(data);
   })
