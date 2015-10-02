@@ -27,8 +27,8 @@
 
       <div class="col-lg-8" id="rgt">
         <div id="main" class="table">
-          <div class="cell" id="r{{space.row}}c{{space.col}}" ng-class="{ red : hover, blue : latched}" ng-click="tellMe(space.col, space.row, space.id)" ng-mouseenter="hover = true" ng-mouseleave="hover = false" ng-repeat="space in spaces | orderBy: sortCol | orderBy: sortRow">
-                <div class="token" id="{{space.id}}"></div>
+          <div class="cell" id="r{{space.row}}c{{space.col}}" ng-class="{ red : hover, blue : latched}" ng-click="tellMe(space.col, space.row, space.tokenId)" ng-mouseenter="hover = true" ng-mouseleave="hover = false" ng-repeat="space in spaces | orderBy: sortCol | orderBy: sortRow">
+                <div class="token" id="{{space.tokenId}}">{{space.tokenId.charAt(1).toUpperCase()}}</div>
           </div>
       </div>
       </div>
@@ -41,4 +41,3 @@
 
   </body>
 </html>
-]\[
