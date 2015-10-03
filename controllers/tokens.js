@@ -19,12 +19,12 @@
 
   // boardInitialize
   controller.post('/', function(req, res, next) {
-      var cell = { 'row' : 0, 'col' : 0, tokenId : 'none'};
+      var cell = { 'row' : 0, 'col' : 0, tokenSpec : 'none'};
       for (var i=1; i<19; i++) {
         for (var j=1; j<11; j++) {
           cell.row = i.toString();
           cell.col = j.toString();
-          cell.tokenId = 'empty';
+          cell.tokenSpec = 'empty';
           // console.log('cell');
           // console.log(cell);
           boardModel.create(cell, function(error, token) {
@@ -41,9 +41,9 @@
   // boardInitialize
   controller.post('/special', function(req, res, next) {
 
-      boardModel.findOne({'tokenId':'r5'},function(error,tokens) {
+      boardModel.findOne({'tokenSpec':'r5'},function(error,tokens) {
         if (error) return error;
-        boardModel.findByIdAndUpdate(tokens._id, { 'tokenId':'b4'}, function(error, token) {
+        boardModel.findByIdAndUpdate(tokens._id, { 'tokenSpec':'b4'}, function(error, token) {
           if (error) return error;
           });
         });
@@ -53,7 +53,7 @@
           res.json(tokens);
         });
 
-      // boardModel.findAndModify({query:{'tokenId':'r5'},update:{'tokenId':'r2'}},function(error,tokens) {
+      // boardModel.findAndModify({query:{'tokenSpec':'r5'},update:{'tokenSpec':'r2'}},function(error,tokens) {
       //   if (error) return error;
       //   res.json(tokens._id);
       // });
@@ -74,12 +74,12 @@
     // if size is inadequate, clear the object and initialize an empty board
     if (tokens.length<180) {
       boardModel.collection.remove();
-      var cell = { 'row' : 0, 'col' : 0, tokenId : 'none'};
+      var cell = { 'row' : 0, 'col' : 0, tokenSpec : 'none'};
       for (var i=1; i<19; i++) {
         for (var j=1; j<11; j++) {
           cell.row = i.toString();
           cell.col = j.toString();
-          cell.tokenId = 'empty';
+          cell.tokenSpec = 'empty';
           // console.log('cell');
           // console.log(cell);
           boardModel.create(cell, function(error, token) {
@@ -92,46 +92,46 @@
     for (var i=1; i<19; i++) {
       for (var j=1; j<11; j++) {
         if (i<11) {
-            boardModel.update({'row': i, 'col': j },{$set: {'tokenId': 'empty' }},function(error,tokens) {
+            boardModel.update({'row': i, 'col': j },{$set: {'tokenSpec': 'empty' }},function(error,tokens) {
               if (error) return error;
             });
           } else if (i<15) {
             cell = 'b' + blues.pop();
-            boardModel.update({'row': i, 'col': j },{$set: {'tokenId': cell }},function(error,tokens) {
+            boardModel.update({'row': i, 'col': j },{$set: {'tokenSpec': cell }},function(error,tokens) {
               if (error) return error;
             });
           } else {
             cell = 'r' + reds.pop();
-            boardModel.update({'row': i, 'col': j },{$set: {'tokenId': cell }},function(error,tokens) {
+            boardModel.update({'row': i, 'col': j },{$set: {'tokenSpec': cell }},function(error,tokens) {
               if (error) return error;
             });
           }
       }
       // set up the dmz
       // left center
-      boardModel.update({'row': 4, 'col': 3 },{$set: {'tokenId': 'dmz' }},function(error,tokens) {
+      boardModel.update({'row': 5, 'col': 3 },{$set: {'tokenSpec': 'star-tl' }},function(error,tokens) {
         if (error) return error;
       });
-      boardModel.update({'row': 4, 'col': 4 },{$set: {'tokenId': 'dmz' }},function(error,tokens) {
+      boardModel.update({'row': 5, 'col': 4 },{$set: {'tokenSpec': 'star-tr' }},function(error,tokens) {
         if (error) return error;
       });
-      boardModel.update({'row': 5, 'col': 3 },{$set: {'tokenId': 'dmz' }},function(error,tokens) {
+      boardModel.update({'row': 6, 'col': 3 },{$set: {'tokenSpec': 'star-bl' }},function(error,tokens) {
         if (error) return error;
       });
-      boardModel.update({'row': 5, 'col': 4 },{$set: {'tokenId': 'dmz' }},function(error,tokens) {
+      boardModel.update({'row': 6, 'col': 4 },{$set: {'tokenSpec': 'star-br' }},function(error,tokens) {
         if (error) return error;
       });
       // right center
-      boardModel.update({'row': 4, 'col': 7 },{$set: {'tokenId': 'dmz' }},function(error,tokens) {
+      boardModel.update({'row': 5, 'col': 7 },{$set: {'tokenSpec': 'star-tl' }},function(error,tokens) {
         if (error) return error;
       });
-      boardModel.update({'row': 4, 'col': 8 },{$set: {'tokenId': 'dmz' }},function(error,tokens) {
+      boardModel.update({'row': 5, 'col': 8 },{$set: {'tokenSpec': 'star-tr' }},function(error,tokens) {
         if (error) return error;
       });
-      boardModel.update({'row': 5, 'col': 7 },{$set: {'tokenId': 'dmz' }},function(error,tokens) {
+      boardModel.update({'row': 6, 'col': 7 },{$set: {'tokenSpec': 'star-bl' }},function(error,tokens) {
         if (error) return error;
       });
-      boardModel.update({'row': 5, 'col': 8 },{$set: {'tokenId': 'dmz' }},function(error,tokens) {
+      boardModel.update({'row': 6, 'col': 8 },{$set: {'tokenSpec': 'star-br' }},function(error,tokens) {
         if (error) return error;
       });
     }
@@ -172,7 +172,7 @@
             } else {
               cell = 'empty';
             }
-            boardModel.update({'row': i, 'col': j },{$set: {'tokenId': cell }},function(error,tokens) {
+            boardModel.update({'row': i, 'col': j },{$set: {'tokenSpec': cell }},function(error,tokens) {
               if (error) return error;
             });
           }
@@ -186,7 +186,7 @@
             } else {
               cell = 'b' + blues.pop();
             }
-            boardModel.update({'row': i, 'col': j },{$set: {'tokenId': cell }},function(error,tokens) {
+            boardModel.update({'row': i, 'col': j },{$set: {'tokenSpec': cell }},function(error,tokens) {
               if (error) return error;
             });
           }
@@ -228,7 +228,7 @@
             } else {
               cell = 'empty';
             }
-            boardModel.update({'row': i, 'col': j },{$set: {'tokenId': cell }},function(error,tokens) {
+            boardModel.update({'row': i, 'col': j },{$set: {'tokenSpec': cell }},function(error,tokens) {
               if (error) return error;
             });
           }
@@ -242,7 +242,7 @@
             } else {
               cell = 'r' + reds.pop();
             }
-            boardModel.update({'row': i, 'col': j },{$set: {'tokenId': cell }},function(error,tokens) {
+            boardModel.update({'row': i, 'col': j },{$set: {'tokenSpec': cell }},function(error,tokens) {
               if (error) return error;
             });
           }
@@ -269,7 +269,7 @@
   controller.get('/red', function(req, res, next) {
     boardModel.find(function(error,tokens) {
       if (error) return error;
-      // console.log(tokens[4].row,tokens[4].col,tokens[4].tokenId);
+      // console.log(tokens[4].row,tokens[4].col,tokens[4].tokenSpec);
       transform.transformRed(tokens);
       res.json(tokens);
     });

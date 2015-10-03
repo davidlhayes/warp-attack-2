@@ -26,35 +26,55 @@
       <!-- board row -->
       <div class="row">
 
-        <div class="col-lg-2">
-          <div class="tray" >
-            <div class="cell" id="r{{space.row}}c{{space.col}}" ng-repeat="space in spaces" ng-show="$index<40">
-               <div class="token" id="{{space.tokenId}}">{{space.tokenId.charAt(1).toUpperCase()}}</div>
+        <div class="tray-col left">
+          <div class="tray battle">
+            <div class="tray-cell cell" ng-repeat="space in leftTray" id="r{{space.row}}c{{space.col}}"  ng-click="tellMe()">
+               <div class="token {{space.tokenSpec}}">{{space.tokenSpec.charAt(1).toUpperCase()}}</div>
             </div>
           </div>
         </div>
 
-        <div class="col-lg-1">
-          <button class="btn btn-default">ON</button>
-          <button class="btn btn-default">OFF</button>
+        <div class="button-col">
+          <button class="vertical">RESET</button>
+          <button class="vertical">QUICK SET</button>
         </div>
-        <div class="col-lg-6">
-          <div class="main">
-            <div class="cell" id="r{{space.row}}c{{space.col}}" ng-repeat="space in spaces | orderBy: sortCol | orderBy: sortRow" ng-show="$index<100">
-                  <div class="token" id="{{space.tokenId}}">{{space.tokenId.charAt(1).toUpperCase()}}</div>
+
+        <div class="board-col">
+          <div class="main battle">
+            <div class="board-cell cell" ng-repeat="space in board | orderBy: sortCol | orderBy: sortRow" id="r{{space.row}}c{{space.col}}" ng-click="tellMe()">
+                  <div class="token {{space.tokenSpec}}">{{space.tokenSpec.charAt(1).toUpperCase()}}</div>
             </div>
           </div>
         </div>
 
-        <div class="col-lg-3">
-          <div class="tray">
-            <div class="cell" id="r{{space.row}}c{{space.col}}" ng-repeat="space in spaces" ng-show="$index<40">
-               <div class="token" id="{{space.tokenId}}">{{space.tokenId.charAt(1).toUpperCase()}}</div>
+        <div class="button-col" >
+          <button class="vertical">RESET</button>
+          <button class="vertical">QUICK SET</button>
+        </div>
+
+        <div class="tray-col">
+          <div class="tray battle">
+            <div class="tray-cell cell" ng-repeat="space in rightTray" id="r{{space.row}}c{{space.col}}" ng-click="tellMe()">
+               <div class="token {{space.tokenSpec}}">{{space.tokenSpec.charAt(1).toUpperCase()}}</div>
             </div>
           </div>
         </div>
 
-        <button class="btn btn-default" ng-click="switchIt(true)">SWITCH</button>
+        <!-- <button class="btn btn-default" ng-click="switchIt(true)">SWITCH</button> -->
+        <div class="controls">
+          <input type="text" placeholder="origin row">
+          <input type="text" placeholder="origin col">
+          <input type="text" placeholder="destination row">
+          <input type="text" placeholder="destination col">
+          <br>
+          <p>Color: {{myColor}} Turn: {{turn}} Status: {{status}}</p>
+          <button>MOVE</button>
+          <button>SET TRAYS</button>
+          <button ng-click="switchSides()">SWITCH SIDES</button>
+          <button>GET STATUS</button>
+        </div>
+
+
 
       </div> <!-- end board row -->
     </div>
