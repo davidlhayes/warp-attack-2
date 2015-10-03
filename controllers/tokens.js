@@ -2,6 +2,7 @@
   var controller = express.Router();
 
   var boardModel = require('../models/Board');
+  var playerModel = require('../models/Player')
   var bodyParser = require('body-parser');
   var transform = require('../logic/transform');
 

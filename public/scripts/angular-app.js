@@ -9,8 +9,6 @@ app.controller('BoardCtrl', ['$scope', '$route', '$http', function($scope, $rout
 
   $scope.spaces = data;
 
-
-
   $scope.sortCol = 'col';
   $scope.sortRow = 'row';
   $scope.switchIt = function(fsw) {
