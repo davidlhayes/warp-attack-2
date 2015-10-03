@@ -2,11 +2,11 @@
   var controller = express.Router();
 
   var boardModel = require('../models/Board');
-  var playerModel = require('../models/Player')
   var bodyParser = require('body-parser');
   var transform = require('../logic/transform');
 
-  // RESTful API
+  // Board API -- set board tokens, move tokens (as governed by game rules)
+ //  and get token placement information
 
   // boardDelete
   controller.delete('/', function(req, res, next) {
@@ -68,7 +68,6 @@
                     9,9,9,9,9,9,9,9,'m','m','m','m','m','m','s','f' ];
     var length;
 
-    // check current object size
     boardModel.find(function(error,tokens) {
         if (error) return error;
     // if size is inadequate, clear the object and initialize an empty board
@@ -265,12 +264,21 @@
     });
   });
 
+  // get all for blue
+  controller.get('/blue', function(req, res, next) {
+    boardModel.find(function(error,tokens) {
+      if (error) return error;
+      // send out a reversed board;
+      res.json(transform.transformBlue(tokens));
+    });
+  });
+
   // get all for red
   controller.get('/red', function(req, res, next) {
     boardModel.find(function(error,tokens) {
       if (error) return error;
       // console.log(tokens[4].row,tokens[4].col,tokens[4].tokenSpec);
-      transform.transformRed(tokens);
+      // transform.transformRed(tokens);
       res.json(tokens);
     });
   });

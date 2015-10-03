@@ -3,22 +3,35 @@ var teamColor = 'blue';
 var app = angular.module('warp', ['ngRoute']);
 
 app.controller('BoardCtrl', ['$scope', '$route', '$http', function($scope, $route, $http) {
-  var colorUrl = '/tokens';
   $scope.myColor = teamColor;
-  $http.get(colorUrl).success(function(data) {
-    console.log('fetched data');
-    console.log(data.length);
-    // for (key in data) {
-    //   console.log(data[key].row, data[key].col, data[key].tokenSpec);
-    // };
-    $scope.board = data.slice(0,100);
-    $scope.leftTray = data.slice(100,140);
-    $scope.rightTray = data.slice(140,180);
 
-    //       console.log($scope.board);
-    // for (key in $scope.leftTray) {
-    //   console.log($scope.leftTray[key].row, $scope.leftTray[key].col, $scope.leftTray[key].tokenSpec);
-    // };
+  console.log("reset");
+  getColors();
+
+  $scope.$watch("myColor", function(newValue, oldValue) {
+    if(newValue != oldValue ) {
+      getColors();
+    }
+  });
+
+  function getColors() {
+    var colorUrl = '/tokens/' + $scope.myColor;
+    $http.get(colorUrl).success(function(data) {
+      console.log('fetched data');
+      console.log(data.length);
+      // for (key in data) {
+      //   console.log(data[key].row, data[key].col, data[key].tokenSpec);
+      // };
+      $scope.board = data.slice(0,100);
+      $scope.leftTray = data.slice(100,140);
+      $scope.rightTray = data.slice(140,180);
+
+      //       console.log($scope.board);
+      // for (key in $scope.leftTray) {
+      //   console.log($scope.leftTray[key].row, $scope.leftTray[key].col, $scope.leftTray[key].tokenSpec);
+      // };
+    });
+  }
 
   $scope.sortCol = 'col';
   $scope.sortRow = 'row';
@@ -35,18 +48,57 @@ app.controller('BoardCtrl', ['$scope', '$route', '$http', function($scope, $rout
   $scope.tellMe = function() {
     console.log('HI');
   };
+
   $scope.switchSides = function() {
     console.log($scope.myColor);
     if ($scope.myColor == 'red') {
       $scope.myColor = 'blue';
+      // getColors($scope.myColor);
+      console.log('turning blue');
       // $route.reload();
     } else if ($scope.myColor == 'blue') {
       $scope.myColor = 'red';
+      // getColors($scope.myColor);
+      console.log('turning red');
       // $route.reload();
     };
   }
 
-});
+  // set tokens in trays
+  $scope.setTrays = function() {
+    $http.post('/tokens/trays').success(function(data) {
+      console.log('set trays');
+    });
+  };
+
+  // set blue tokens in tray
+  $scope.setBlueTray = function() {
+    $http.post('/tokens/bluetray',{ }).success(function(data) {
+      console.log('set blue tray');
+    });
+  };
+
+  // set blue tokens on field
+  $scope.setBlueField = function() {
+    $http.post('/tokens/bluetray',{ 'set' : true }).success(function(data) {
+      console.log('set blue field');
+    });
+  };
+
+  // set red tokens in tray
+  $scope.setRedTray = function() {
+    $http.post('/tokens/redtray',{ }).success(function(data) {
+      console.log('set red tray');
+    });
+  };
+
+  // set red tokens on field
+  $scope.setRedField = function() {
+    $http.post('/tokens/redtray',{ 'set' : true }).success(function(data) {
+      console.log('set red field');
+    });
+  };
+
 
 }]);
 
