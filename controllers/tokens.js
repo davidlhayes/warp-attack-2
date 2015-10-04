@@ -4,6 +4,10 @@
   var boardModel = require('../models/Board');
   var bodyParser = require('body-parser');
   var transform = require('../logic/transform');
+  var playerModel = require('../models/Player');
+  // var hideTokens = require('../logic/hideTokens');
+  var checkSet = require('../logic/checkset');
+  var checkMove = require('../logic/checkmove');
 
   // Board API -- set board tokens, move tokens (as governed by game rules)
  //  and get token placement information
@@ -60,7 +64,7 @@
   });
 
 // set empty field and full trays
-  controller.post('/trays', function(req, res, next) {
+  controller.put('/trays', function(req, res, next) {
 
     var blues = [ 1,2,3,3,4,4,4,5,5,5,5,6,6,6,6,7,7,7,7,8,8,8,8,8,
                     9,9,9,9,9,9,9,9,'m','m','m','m','m','m','s','f' ];
@@ -143,7 +147,7 @@
   });
 
   // reset blue tray
-  controller.post('/bluetray', function(req, res, next) {
+  controller.put('/bluetray', function(req, res, next) {
     // if anything was passed as an argument, this is a quick set
     if (req.body) {
       // useful sample arrangement
@@ -200,7 +204,7 @@
   });
 
   // reset red tray
-  controller.post('/redtray', function(req, res, next) {
+  controller.put('/redtray', function(req, res, next) {
     // if anything was passed as an argument, this is a quick set
     if (req.body) {
       // useful sample arrangement
@@ -212,7 +216,7 @@
       var reds = [ 1,2,3,3,4,4,4,5,5,5,5,6,6,6,6,7,7,7,7,8,8,8,8,8,
                     9,9,9,9,9,9,9,9,'m','m','m','m','m','m','s','f' ];
     }
-
+    // console.log(req.body);
     // check current object size
     boardModel.find(function(error,tokens) {
         if (error) return error;
@@ -269,7 +273,16 @@
     boardModel.find(function(error,tokens) {
       if (error) return error;
       // send out a reversed board;
-      res.json(transform.transformBlue(tokens));
+      var t = transform.transformBlue(tokens);
+      // replace red tokens with red backs
+      console.log('get blue ' + t[179].row,t[179].col,t[179].tokenSpec);
+      for (key in t) {
+        // console.log(key, t[key], t[key].tokenSpec);
+        if ((t[key].tokenSpec.charAt(0) == 'r') && (t[key].row < 101)) {
+            t[key].tokenSpec = 'rback';
+        }
+      }
+      res.json(t);
     });
   });
 
@@ -277,11 +290,154 @@
   controller.get('/red', function(req, res, next) {
     boardModel.find(function(error,tokens) {
       if (error) return error;
-      // console.log(tokens[4].row,tokens[4].col,tokens[4].tokenSpec);
-      // transform.transformRed(tokens);
-      res.json(tokens);
+      // send out a reversed board;
+      var t = tokens;
+      // replace red tokens with red backs
+      console.log('get red ' + t[179].row,t[179].col,t[179].tokenSpec);
+      for (key in t) {
+        // console.log(key, t[key], t[key].tokenSpec);
+        if ((t[key].tokenSpec.charAt(0) == 'b') && (t[key].row < 101)) {
+            t[key].tokenSpec = 'bback';
+        }
+      }
+      // console.log(t);
+      res.json(t);
     });
   });
+
+  // move Token
+  controller.put('/move', function(req, res, next) {
+    // pull out arguments
+    console.log(req.body)
+    var orgRow = req.body.orgRow;
+    var orgCol = req.body.orgCol;
+    var dstRow = req.body.dstRow;
+    var dstCol = req.body.dstCol;
+    var orgId;
+    console.log('token.js ' + orgRow, orgCol, dstRow, dstCol);
+    // what mode are we in
+    playerModel.find(function(error,players) {
+      if (error) return error;
+      var isSetup = (players[0].turn=='setup');
+      // if player is blue, board was rotated => transform
+      // coordinatesbefore proceeding
+      if (players[0].turn = 'blue') {
+        if (orgRow <= 10) {
+          orgRow = 11 - orgRow;
+          orgCol = 11 - orgCol;
+        };
+        if (dstRow <= 10) {
+          dstRow = 11 - dstRow;
+          dstCol = 11 - dstCol;
+        }
+      };
+      // res.json(players);
+      console.log(players);
+
+    // first get the id of the mover
+      boardModel.find(
+        { row: orgRow, col: orgCol },function(error, result) {
+          if (error) return error;
+          orgId = result._id;
+          orgSpec = result.tokenSpec;
+          // res.json(result);
+    // get the id of the prey
+          boardModel.find({ row: dstRow, col: dstCol }, function(error, result) {
+            if (error) return error;
+            dstId = result._id;
+            dstSpec = result.tokenSpec;
+            if (isSetup) {
+              console.log(orgRow,orgCol,orgSpec,dstRow,dstCol,dstSpec);
+              // moveResult = checkSet(orgRow,orgCol,orgSpec,dstRow,dstCol,dstSpec);
+            } else {
+              moveResult = checkMove(orgRow,orgCol,orgSpec,dstRow,dstCol,dstSpec);
+            }
+            switch(moveResult) {
+              case 'move to empty space':
+                // swap empty with mover
+                boardModel.findByIdAndUpdate(dstId,
+                  { 'tokenSpec': orgSpec }, function(error, result) {
+                    if (error) return error;
+                });
+                boardModel.findByIdAndUpdate(orgId,
+                  { 'tokenSpec': 'empty'}, function(error, result) {
+                    if (error) return error;
+                });
+                break;
+              case 'victory':
+                // swap org and dst
+                boardModel.findByIdAndUpdate(dstId,
+                  { 'tokenSpec': orgSpec }, function(error, result) {
+                    if (error) return error;
+                    boardModel.findByIdAndUpdate(orgId,
+                    { 'tokenSpec': 'empty'}, function(error, result) {
+                      if (error) return error;
+                    })
+                  });
+                // move loser to empty space in appropriate tray
+                boardModel.findByIdAndUpdate(emptyTrayId(dstSpec.chatAt(0)),
+                  { 'tokenSpec': dstSpec }, function(error, result) {
+                    if (error) return error;
+                  });
+                  break;
+              case 'win':
+                // swap org and dst
+                boardModel.findByIdAndUpdate(dstId,
+                  { 'tokenSpec': orgSpec }, function(error, result) {
+                    if (error) return error;
+                });
+                  boardModel.findByIdAndUpdate(orgId,
+                  { 'tokenSpec': 'empty'}, function(error, result) {
+                    if (error) return error;
+                });
+                // move loser to empty space in appropriate tray
+                boardModel.findByIdAndUpdate(emptyTrayId(dstSpec.chatAt(0)),
+                  { 'tokenSpec': dstSpec }, function(error, result) {
+                    if (error) return error;
+                  });
+                  break;
+              case 'defeat':
+                // just place the mover in the tray
+                boardModel.findByIdAndUpdate(orgId,
+                  { 'tokenSpec': 'empty'}, function(error, result) {
+                    if (error) return error;
+                  });
+                // move loser to empty space in appropriate tray
+                boardModel.findByIdAndUpdate(emptyTrayId(orgSpec.chatAt(0)),
+                  { 'tokenSpec': orgSpec }, function(error, result) {
+                    if (error) return error;
+                  });
+                  break;
+              case 'double defeat':
+                // move org and dst to tray, replace with empties
+                // mover first
+                boardModel.findByIdAndUpdate(orgId,
+                  { 'tokenSpec': 'empty'}, function(error, result) {
+                    if (error) return error;
+                  });
+                boardModel.findByIdAndUpdate(emptyTrayId(orgSpec.chatAt(0)),
+                  { 'tokenSpec': orgSpec }, function(error, result) {
+                    if (error) return error;
+                  });
+                // prey next
+                boardModel.findByIdAndUpdate(dstId,
+                  { 'tokenSpec': 'empty'}, function(error, result) {
+                    if (error) return error;
+                  });
+                boardModel.findByIdAndUpdate(emptyTrayId(dstSpec.chatAt(0)),
+                  { 'tokenSpec': dstSpec }, function(error, result) {
+                    if (error) return error;
+                  });
+                break;
+              default:
+              // move was not allowed. Just send a message.
+              res.json({ 'message': moveResult });
+            }
+            // console.log(orgRow,orgCol,orgSpec,dstRow,dstCol,dstSpec,moveResult);
+          });
+      });
+    });
+  }); <!-- controller move token -->
 
   // get by Id
   controller.get('/:id', function(req, res, next) {
@@ -294,7 +450,7 @@
   // create
   controller.post('/', function(req, res, next) {
     boardModel.create(req.body, function(error, token) {
-      console.log(req.body);
+      // console.log(req.body);
       if (error) return error;
       res.json(token);
     });

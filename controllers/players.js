@@ -5,23 +5,28 @@
   var bodyParser = require('body-parser');
 
   // boardDelete
+  controller.post('/', function(req, res, next) {
+    console.log('success on players');
+    var status = { 'red' : false,
+                   'blue': false,
+                   'turn': 'setup',
+                   'lastOrg': { row: 1, col: 2},
+                   'lastDst': { row: 1, col: 2},
+                   'lastMover': 'none',
+                   'lastPrey': 'none',
+                   'lastMoverSurvived': false,
+                   'players.lastPreySurvived': false
+                 }
+    playerModel.create(status, function(error, players) {
+      if (error) return error;
+    });
+  });
+
   controller.get('/', function(req, res, next) {
     playerModel.find(function(error,players) {
       if (error) return error;
       res.json(players);
     });
-    if (players.length < 9) {
-      players.red = false;
-      players.blue = false;
-      players.turn = 'setup';
-      players.lastOrg = { row: 1, col: 1 };
-      players.lastDst = { row: 1, col: 2 };
-      players.lastMover = 'none';
-      players.lastPrey = 'none';
-      players.lastMoverSurvived = false;
-      players.lastPreySurvived = false;
-      res.json(players);
-    }
   });
 
 module.exports = controller;

@@ -1,14 +1,23 @@
 var teamColor = 'blue';
+var heartBeat = 0;
 
 var app = angular.module('warp', ['ngRoute']);
 
 app.controller('BoardCtrl', ['$scope', '$route', '$http', function($scope, $route, $http) {
   $scope.myColor = teamColor;
+  $scope.myHeartBeat = heartBeat;
 
-  console.log("reset");
+  // console.log("heartBeat" + $scope.myHeartBeat);
   getColors();
 
   $scope.$watch("myColor", function(newValue, oldValue) {
+    if(newValue != oldValue ) {
+      getColors();
+    }
+  });
+
+  $scope.$watch("myHeartBeat", function(newValue, oldValue) {
+    // console.log('heartbeat' + $scope.myHeartBeat);
     if(newValue != oldValue ) {
       getColors();
     }
@@ -18,9 +27,9 @@ app.controller('BoardCtrl', ['$scope', '$route', '$http', function($scope, $rout
     var colorUrl = '/tokens/' + $scope.myColor;
     $http.get(colorUrl).success(function(data) {
       console.log('fetched data');
-      console.log(data.length);
+      // console.log(data.length);
       // for (key in data) {
-      //   console.log(data[key].row, data[key].col, data[key].tokenSpec);
+        console.log(data[179].row, data[179].col, data[179].tokenSpec);
       // };
       $scope.board = data.slice(0,100);
       $scope.leftTray = data.slice(100,140);
@@ -31,7 +40,8 @@ app.controller('BoardCtrl', ['$scope', '$route', '$http', function($scope, $rout
       //   console.log($scope.leftTray[key].row, $scope.leftTray[key].col, $scope.leftTray[key].tokenSpec);
       // };
     });
-  }
+  };
+
 
   $scope.sortCol = 'col';
   $scope.sortRow = 'row';
@@ -46,62 +56,118 @@ app.controller('BoardCtrl', ['$scope', '$route', '$http', function($scope, $rout
     $route.reload();
   };
   $scope.tellMe = function() {
-    console.log('HI');
+    // console.log('HI');
   };
 
   $scope.switchSides = function() {
-    console.log($scope.myColor);
+    // console.log($scope.myColor);
     if ($scope.myColor == 'red') {
       $scope.myColor = 'blue';
       // getColors($scope.myColor);
-      console.log('turning blue');
+      // console.log('turning blue');
       // $route.reload();
     } else if ($scope.myColor == 'blue') {
       $scope.myColor = 'red';
       // getColors($scope.myColor);
-      console.log('turning red');
+      // console.log('turning red');
       // $route.reload();
     };
   }
 
   // set tokens in trays
   $scope.setTrays = function() {
-    $http.post('/tokens/trays').success(function(data) {
-      console.log('set trays');
+    $http.put('/tokens/trays').success(function(data) {
+      // console.log('set trays');
     });
+    $scope.myHeartBeat++;
   };
 
   // set blue tokens in tray
   $scope.setBlueTray = function() {
-    $http.post('/tokens/bluetray',{ }).success(function(data) {
-      console.log('set blue tray');
+    $http({
+      method: 'PUT',
+      url: '/tokens/bluetray',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'}
     });
+    $scope.myHeartBeat++;
   };
 
   // set blue tokens on field
   $scope.setBlueField = function() {
-    $http.post('/tokens/bluetray',{ 'set' : true }).success(function(data) {
-      console.log('set blue field');
+    $http({
+      method: 'PUT',
+      url: '/tokens/bluetray',
+      data: message = "set",
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'}
     });
+    $scope.myHeartBeat++;
   };
 
   // set red tokens in tray
   $scope.setRedTray = function() {
-    $http.post('/tokens/redtray',{ }).success(function(data) {
-      console.log('set red tray');
+    $http({
+      method: 'PUT',
+      url: '/tokens/redtray',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'}
     });
+    $scope.myHeartBeat++;
   };
 
   // set red tokens on field
   $scope.setRedField = function() {
-    $http.post('/tokens/redtray',{ 'set' : true }).success(function(data) {
-      console.log('set red field');
+    $http({
+      method: 'PUT',
+      url: '/tokens/redtray',
+      data: message = "set",
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'}
     });
+    $scope.myHeartBeat++;
   };
 
+  // move token
+  $scope.moveToken = function() {
+    $http({
+      method: 'PUT',
+      url: '/tokens/move',
+      data: $.param({
+              orgRow: $scope.orgRow,
+              orgCol: $scope.orgCol,
+              dstRow: $scope.dstRow,
+              dstCol: $scope.dstCol}),
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+    });
+  }
 
 }]);
 
+app.controller('PlayerCtrl', ['$scope', '$route', '$http', function($scope, $route, $http) {
+
+  function getPlayerStatus() {
+    $http.get('/players').success(function(data) {
+      // console.log('fetched players');
+      // console.log(data.length);
+      // console.log(data[0].turn);
+      $scope.status = data[0].turn;
+
+    });
+  };
+  $scope.incrTimer = function () {
+    getPlayerStatus();
+  };
+
+  //
+  // $scope.$watch("myHeartBeat", function(newValue, oldValue) {
+  //   console.log('heartbeat' + $scope.myHeartBeat);
+  //   if(newValue != oldValue ) {
+  //     getPlayerStatus();
+  //   }
+  // });
+  //
+  // $scope.incrTimer() {
+  //   $scope.myHeartBeat++;
+  // }
+
+}]);
 
 // var tokens = [
 //   {

@@ -62,21 +62,24 @@
 
         <!-- <button class="btn btn-default" ng-click="switchIt(true)">SWITCH</button> -->
         <div class="controls">
-          <input type="text" placeholder="origin row">
-          <input type="text" placeholder="origin col">
-          <input type="text" placeholder="destination row">
-          <input type="text" placeholder="destination col">
+          <input type="text" placeholder="origin row" ng-model="orgRow">
+          <input type="text" placeholder="origin col" ng-model="orgCol">
+          <input type="text" placeholder="destination row" ng-model="dstRow">
+          <input type="text" placeholder="destination col" ng-model="dstCol">
+          <button ng-click="moveToken()">MOVE</button>
           <br>
-          <p>Color: {{myColor}} Turn: {{turn}} Status: {{status}}</p>
-          <button>MOVE</button>
+          <p>Color: {{myColor}}</p>
           <button ng-click="setTrays()">SET TRAYS</button>
           <button ng-click="switchSides()">SWITCH SIDES</button>
-          <button>GET STATUS</button>
         </div>
 
 
 
       </div> <!-- end board row -->
+      <div class="controls" ng-controller="PlayerCtrl">
+      <button ng-click="incrTimer()">GET STATUS</button>
+        <p>Play Status: {{status}}</p>
+      </div>
     </div>
   </body>
 </html>
