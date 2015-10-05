@@ -5,10 +5,13 @@
   var bodyParser = require('body-parser');
   var transform = require('../logic/transform');
   var playerModel = require('../models/Player');
-  // var hideTokens = require('../logic/hideTokens');
-  var checkSet = require('../logic/checkset');
-  var checkMove = require('../logic/checkmove');
-
+  var hideTokens = require('../logic/hideTokens');
+  var checkSet = require('../logic/checkSet');
+  var checkMove = require('../logic/checkMove')
+  // var tools = require('./tools');
+  // var checkMove = require('./tools');
+  var friend = 'Matt';
+  console.log(typeof checkMove.checkMove);
   // Board API -- set board tokens, move tokens (as governed by game rules)
  //  and get token placement information
 
@@ -149,16 +152,9 @@
   // reset blue tray
   controller.put('/bluetray', function(req, res, next) {
     // if anything was passed as an argument, this is a quick set
-    if (req.body) {
-      // useful sample arrangement
-      var blues = [ 9 , 9 , 5 , 6 , 6 , 9 , 8 , 3 , 9 , 8 ,
-                    4 , 7 , 2 ,'m', 4 ,'m', 5 , 5 ,'m', 4 ,
-                   's','m', 8 , 7 , 3 ,'f', 1 ,'m', 8 , 6 ,
-                    5 , 7 , 8 , 9 , 9 ,'m', 9 , 9 , 6 , 7];
-    } else {
-      var blues = [ 1,2,3,3,4,4,4,5,5,5,5,6,6,6,6,7,7,7,7,8,8,8,8,8,
-                    9,9,9,9,9,9,9,9,'m','m','m','m','m','m','s','f' ];
-    }
+
+    var blues = [ 1,2,3,3,4,4,4,5,5,5,5,6,6,6,6,7,7,7,7,8,8,8,8,8,
+                  9,9,9,9,9,9,9,9,'m','m','m','m','m','m','s','f' ];
 
     // check current object size
     boardModel.find(function(error,tokens) {
@@ -168,13 +164,7 @@
         // fill the blue staging area on the field with empty squares
         for (var i=1; i<=4; i++) {
           for (var j=1; j<=10; j++) {
-            // if req body is non-null, this is a quick set
-            if ("set" in req.body) {
-              cell = 'b' + blues.pop();
-            // it's a tray reset. empty the field
-            } else {
-              cell = 'empty';
-            }
+            cell = 'empty';
             boardModel.update({'row': i, 'col': j },{$set: {'tokenSpec': cell }},function(error,tokens) {
               if (error) return error;
             });
@@ -183,12 +173,46 @@
         // fill the blue tray with all the blue tokens
         for (var i=11; i<=14; i++) {
           for (var j=1; j<=10; j++) {
-            // if req body is non-null, this is a quick set, so empty the tray
-            if ("set" in req.body) {
-              cell = 'empty';
-            } else {
-              cell = 'b' + blues.pop();
-            }
+            cell = 'b' + blues.pop();
+            boardModel.update({'row': i, 'col': j },{$set: {'tokenSpec': cell }},function(error,tokens) {
+              if (error) return error;
+            });
+          }
+        };
+        // returns the board json
+        boardModel.find(function(error,tokens) {
+          if (error) return error;
+          res.json(tokens);
+        });
+      }
+    });
+  });
+
+  // reset blue tray
+  controller.put('/bluefield', function(req, res, next) {
+    // if anything was passed as an argument, this is a quick set
+
+    var blues = [ 1,2,3,3,4,4,4,5,5,5,5,6,6,6,6,7,7,7,7,8,8,8,8,8,
+                    9,9,9,9,9,9,9,9,'m','m','m','m','m','m','s','f' ];
+
+    // check current object size
+    boardModel.find(function(error,tokens) {
+      if (error) return error;
+      // make sure the board size is adequate
+      if (tokens.length=180) {
+        // fill the blue staging area on the field with empty squares
+        for (var i=1; i<=4; i++) {
+          for (var j=1; j<=10; j++) {
+            cell = 'b' + blues.pop();
+            boardModel.update({'row': i, 'col': j },{$set: {'tokenSpec': cell }},function(error,tokens) {
+              if (error) return error;
+            });
+          }
+        };
+        // fill the blue tray with all the blue tokens
+        for (var i=11; i<=14; i++) {
+          for (var j=1; j<=10; j++) {
+            cell = 'empty';
             boardModel.update({'row': i, 'col': j },{$set: {'tokenSpec': cell }},function(error,tokens) {
               if (error) return error;
             });
@@ -206,16 +230,8 @@
   // reset red tray
   controller.put('/redtray', function(req, res, next) {
     // if anything was passed as an argument, this is a quick set
-    if (req.body) {
-      // useful sample arrangement
-      var reds = [ 5 , 8 , 6 ,'m','f', 4 ,'m', 9 , 6 , 7 ,
-                  'm', 7 , 3 , 5 , 9 , 1 ,'m', 9 , 9 , 4 ,
-                   5 , 3 ,'s', 6 , 2 , 8 , 7 , 8 , 5 ,'m',
-                   9 ,'m', 8 , 7 , 9 , 4 , 9 , 8 , 6 , 9];
-    } else {
-      var reds = [ 1,2,3,3,4,4,4,5,5,5,5,6,6,6,6,7,7,7,7,8,8,8,8,8,
-                    9,9,9,9,9,9,9,9,'m','m','m','m','m','m','s','f' ];
-    }
+    var reds = [ 1,2,3,3,4,4,4,5,5,5,5,6,6,6,6,7,7,7,7,8,8,8,8,8,
+                  9,9,9,9,9,9,9,9,'m','m','m','m','m','m','s','f' ];
     // console.log(req.body);
     // check current object size
     boardModel.find(function(error,tokens) {
@@ -225,12 +241,7 @@
         // fill the red staging area on the field with empty squares
         for (var i=7; i<=10; i++) {
           for (var j=1; j<=10; j++) {
-            // if req.body is non-null, this is a quick set. Fill the field
-            if ("set" in req.body) {
-              cell = 'r' + reds.pop();
-            } else {
-              cell = 'empty';
-            }
+            cell = 'empty';
             boardModel.update({'row': i, 'col': j },{$set: {'tokenSpec': cell }},function(error,tokens) {
               if (error) return error;
             });
@@ -239,13 +250,8 @@
         // fill the red tray with all the red tokens
         for (var i=15; i<=18; i++) {
           for (var j=1; j<=10; j++) {
-            // if req.body is non-null, this is a quick set. Empty the tray
-            if ("set" in req.body) {
-              cell = 'empty';
-            } else {
-              cell = 'r' + reds.pop();
-            }
-            boardModel.update({'row': i, 'col': j },{$set: {'tokenSpec': cell }},function(error,tokens) {
+            cell = 'r' + reds.pop();
+             boardModel.update({'row': i, 'col': j },{$set: {'tokenSpec': cell }},function(error,tokens) {
               if (error) return error;
             });
           }
@@ -259,6 +265,50 @@
       }
     });
   });
+
+  // quick set red field
+  controller.put('/redfield', function(req, res, next) {
+    // if anything was passed as an argument, this is a quick set
+      // useful sample arrangement
+    var reds = [ 5 , 8 , 6 ,'m','f', 4 ,'m', 9 , 6 , 7 ,
+                'm', 7 , 3 , 5 , 9 , 1 ,'m', 9 , 9 , 4 ,
+                 5 , 3 ,'s', 6 , 2 , 8 , 7 , 8 , 5 ,'m',
+                 9 ,'m', 8 , 7 , 9 , 4 , 9 , 8 , 6 , 9];
+
+    // console.log(req.body);
+    // check current object size
+    boardModel.find(function(error,tokens) {
+        if (error) return error;
+      // make sure the board size is adequate
+      if (tokens.length=180) {
+        // fill the red staging area on the field with empty squares
+        for (var i=7; i<=10; i++) {
+          for (var j=1; j<=10; j++) {
+            // if req.body is non-null, this is a quick set. Fill the field
+            cell = 'r' + reds.pop();
+            boardModel.update({'row': i, 'col': j },{$set: {'tokenSpec': cell }},function(error,tokens) {
+              if (error) return error;
+            });
+          }
+        }
+        // fill the red tray with all the red tokens
+        for (var i=15; i<=18; i++) {
+          for (var j=1; j<=10; j++) {
+            cell = 'empty';
+            boardModel.update({'row': i, 'col': j },{$set: {'tokenSpec': cell }},function(error,tokens) {
+              if (error) return error;
+            });
+          }
+        };
+        // returns the board json
+        boardModel.find(function(error,tokens) {
+          if (error) return error;
+          res.json(tokens);
+        });
+      }
+    });
+  });
+
 
   // get all
   controller.get('/', function(req, res, next) {
@@ -308,7 +358,7 @@
   // move Token
   controller.put('/move', function(req, res, next) {
     // pull out arguments
-    console.log(req.body)
+    console.log('req.body ' + req.body)
     var orgRow = req.body.orgRow;
     var orgCol = req.body.orgCol;
     var dstRow = req.body.dstRow;
@@ -338,23 +388,26 @@
       boardModel.find(
         { row: orgRow, col: orgCol },function(error, result) {
           if (error) return error;
-          orgId = result._id;
-          orgSpec = result.tokenSpec;
+          orgId = result[0]._id;
+          orgSpec = result[0].tokenSpec;
+          console.log('org ' + orgId, orgSpec);
           // res.json(result);
     // get the id of the prey
           boardModel.find({ row: dstRow, col: dstCol }, function(error, result) {
             if (error) return error;
-            dstId = result._id;
-            dstSpec = result.tokenSpec;
+            dstId = result[0]._id;
+            dstSpec = result[0].tokenSpec;
+            console.log('dst ' + dstId, dstSpec);
             if (isSetup) {
-              console.log(orgRow,orgCol,orgSpec,dstRow,dstCol,dstSpec);
-              // moveResult = checkSet(orgRow,orgCol,orgSpec,dstRow,dstCol,dstSpec);
+              console.log('line 397: ' + orgRow,orgCol,orgSpec,dstRow,dstCol,dstSpec);
+              moveResult = checkSet.checkSet(orgRow,orgCol,orgSpec,dstRow,dstCol,dstSpec);
             } else {
-              moveResult = checkMove(orgRow,orgCol,orgSpec,dstRow,dstCol,dstSpec);
+              var moveResult = checkMove.checkMove(orgRow,orgCol,orgSpec,dstRow,dstCol,dstSpec);
             }
             switch(moveResult) {
               case 'move to empty space':
                 // swap empty with mover
+                console.log('here');
                 boardModel.findByIdAndUpdate(dstId,
                   { 'tokenSpec': orgSpec }, function(error, result) {
                     if (error) return error;
@@ -433,7 +486,7 @@
               // move was not allowed. Just send a message.
               res.json({ 'message': moveResult });
             }
-            // console.log(orgRow,orgCol,orgSpec,dstRow,dstCol,dstSpec,moveResult);
+            console.log('488: ' + orgRow,orgCol,orgSpec,dstRow,dstCol,dstSpec,moveResult);
           });
       });
     });

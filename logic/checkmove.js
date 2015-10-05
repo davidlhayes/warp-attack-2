@@ -14,6 +14,7 @@
       //
       // check valid data
       //
+      console.log('checkmove:' + orgRow,orgCol,orgSpec,dstRow,dstCol,dstSpec)
       if ((orgRow == dstRow) && (orgCol == dstCol)) return 'same square';
       // can't move onto a star
       if ((orgSpec.charAt(0) == 's')) return 'forbidden';
