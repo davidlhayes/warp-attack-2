@@ -1,4 +1,4 @@
-  var teamColor = 'blue';
+  var teamColor = '';
   var heartBeat = 0;
   var mickey = {};
   var Turn;
@@ -68,25 +68,20 @@
 
       return tokenFactory;
   }]);
+
   angular.module('warpApp')
-    .factory('statusService', function() {
-      var turn = 'red';
-      return {
-        getTurn: function(){
-          return turn;
-        }
-      };
-    })
     .controller('BoardCtrl', ['$scope','$http','$rootScope','tokenFactory',
                'statusService', function($scope,$http,$rootScope,tokenFactory, statusService) {
       $scope.myColor = teamColor;
 
       setInterval(function(){
         showBoard();
-        console.log('BoardCtrl: ' + statusService.getTurn() );
+        $scope.turn = statusService.getTurn();
       }, 2000);
       console.log($scope.myColor);
       showBoard();
+      loggedIn();
+
       function showBoard() {
         if ($scope.myColor == 'blue') {
         tokenFactory.getBlueTokens()
@@ -126,16 +121,35 @@
         })
       }
 
+      function loggedIn() {
+        $scope.myTeam = teamColor;
+        console.log('green');
+        if (($scope.myTeam == 'red') ||
+            ($scope.myTeam == 'blue')) {
+              $scope.loggedIn = true;
+        }
+      }
+
   }]);
-  
-    angular.module('warpApp')
+
+  angular.module('warpApp')
+    .factory('statusService', [ '$http', function($http) {
+      return {
+        getTurn: function(){
+          var turn = 'setup';
+          $http.get('/players/turn').success(function(data) {
+            turn = data.turn;
+          });
+          return turn;
+        }
+      };
+    }])
     .controller('PlayerCtrl', ['$scope', '$route', '$http', 'statusService',
                                                 function($scope, $route, $http) {
 
-
       $scope.showTurnStatus = function() {
         $http.get('/players/turn').success(function(data) {
-          $scope.turn = data.turn;
+          $scope.turn = statusService.getTurn();
         });
       };
 
@@ -144,6 +158,8 @@
           $scope.movement = data.movement;
         });
       };
+
+
 
 
   }]);
