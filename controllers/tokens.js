@@ -8,10 +8,7 @@
   var hideTokens = require('../logic/hideTokens');
   var checkSet = require('../logic/checkSet');
   var checkMove = require('../logic/checkMove')
-  // var tools = require('./tools');
-  // var checkMove = require('./tools');
-  var friend = 'Matt';
-  console.log(typeof checkMove.checkMove);
+
   // Board API -- set board tokens, move tokens (as governed by game rules)
  //  and get token placement information
 
@@ -316,6 +313,7 @@
       if (error) return error;
       res.json(tokens);
     });
+    console.log('get tokens');
   });
 
   // get all for blue
@@ -323,16 +321,12 @@
     boardModel.find(function(error,tokens) {
       if (error) return error;
       // send out a reversed board;
-      var t = transform.transformBlue(tokens);
+      // var t = transform.transformBlue(tokens);
       // replace red tokens with red backs
-      console.log('get blue ' + t[179].row,t[179].col,t[179].tokenSpec);
-      for (key in t) {
-        // console.log(key, t[key], t[key].tokenSpec);
-        if ((t[key].tokenSpec.charAt(0) == 'r') && (t[key].row < 101)) {
-            t[key].tokenSpec = 'rback';
-        }
-      }
-      res.json(t);
+      console.log('get blue');
+      // console.log(hideTokens.hideTokens('blue',tokens));
+      res.json(hideTokens.hideTokens('blue',transform.transformBlue(tokens)));
+      // res.json(tokens);
     });
   });
 
@@ -341,30 +335,23 @@
     boardModel.find(function(error,tokens) {
       if (error) return error;
       // send out a reversed board;
-      var t = tokens;
-      // replace red tokens with red backs
-      console.log('get red ' + t[179].row,t[179].col,t[179].tokenSpec);
-      for (key in t) {
-        // console.log(key, t[key], t[key].tokenSpec);
-        if ((t[key].tokenSpec.charAt(0) == 'b') && (t[key].row < 101)) {
-            t[key].tokenSpec = 'bback';
-        }
-      }
+
       // console.log(t);
-      res.json(t);
+      console.log('get red');
+      res.json(hideTokens.hideTokens(tokens));
     });
   });
 
   // move Token
   controller.put('/move', function(req, res, next) {
     // pull out arguments
-    console.log('req.body ' + req.body)
+    // console.log('req.body ' + req.body)
     var orgRow = req.body.orgRow;
     var orgCol = req.body.orgCol;
     var dstRow = req.body.dstRow;
     var dstCol = req.body.dstCol;
     var orgId;
-    console.log('token.js ' + orgRow, orgCol, dstRow, dstCol);
+    // console.log('token.js ' + orgRow, orgCol, dstRow, dstCol);
     // what mode are we in
     playerModel.find(function(error,players) {
       if (error) return error;
@@ -390,14 +377,14 @@
           if (error) return error;
           orgId = result[0]._id;
           orgSpec = result[0].tokenSpec;
-          console.log('org ' + orgId, orgSpec);
+          // console.log('org ' + orgId, orgSpec);
           // res.json(result);
     // get the id of the prey
           boardModel.find({ row: dstRow, col: dstCol }, function(error, result) {
             if (error) return error;
             dstId = result[0]._id;
             dstSpec = result[0].tokenSpec;
-            console.log('dst ' + dstId, dstSpec);
+            // console.log('dst ' + dstId, dstSpec);
             if (isSetup) {
               console.log('line 397: ' + orgRow,orgCol,orgSpec,dstRow,dstCol,dstSpec);
               moveResult = checkSet.checkSet(orgRow,orgCol,orgSpec,dstRow,dstCol,dstSpec);

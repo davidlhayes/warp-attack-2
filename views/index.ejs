@@ -42,7 +42,7 @@
 
         <div class="board-col">
           <div class="main battle">
-            <div class="board-cell cell" ng-repeat="space in board | orderBy: sortCol | orderBy: sortRow" id="r{{space.row}}c{{space.col}}" ng-click="tellMe()">
+            <div class="board-cell cell" ng-repeat="space in board | orderBy: 'col' | orderBy: 'row'" id="r{{space.row}}c{{space.col}}" ng-click="tellMe()">
                   <div class="token {{space.tokenSpec}}">{{space.tokenSpec.charAt(1).toUpperCase()}}</div>
             </div>
           </div>

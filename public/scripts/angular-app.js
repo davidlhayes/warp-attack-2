@@ -70,19 +70,31 @@
     .controller('BoardCtrl', ['$scope','$http','$rootScope','tokenFactory', function($scope,$http,$rootScope,tokenFactory) {
       $scope.myColor = teamColor;
 
-      setInterval(function(){ showBoard();}, 3000);
-
+      setInterval(function(){ showBoard();}, 2000);
+      console.log($scope.myColor);
       showBoard();
       function showBoard() {
-        tokenFactory.getTokens()
+        if ($scope.myColor == 'blue') {
+        tokenFactory.getBlueTokens()
           .success(function(tokens) {
             $scope.leftTray = tokens.slice(100,140);
             $scope.board = tokens.slice(0,100);
             $scope.rightTray = tokens.slice(140,180);
-            console.log(tokens);
+            // console.log(tokens);
           }).error(function(error) {
             $scope.status = 'Unable to load token data: ' + error.message;
           });
+        } else {
+          tokenFactory.getTokens()
+            .success(function(tokens) {
+              $scope.leftTray = tokens.slice(100,140);
+              $scope.board = tokens.slice(0,100);
+              $scope.rightTray = tokens.slice(140,180);
+              // console.log(tokens);
+            }).error(function(error) {
+              $scope.status = 'Unable to load token data: ' + error.message;
+            });
+        }
       }
 
       $scope.moveToken = function() {
