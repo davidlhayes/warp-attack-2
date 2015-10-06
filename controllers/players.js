@@ -32,6 +32,7 @@
   controller.get('/turn', function(req, res, next) {
     playerModel.find(function(error,players) {
       if (error) return error;
+      boardModel.findOne({tokeSpec: 'empty'})
       var turn = { turn : players[0].turn };
       res.json(turn);;
     });

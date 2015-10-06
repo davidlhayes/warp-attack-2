@@ -57,6 +57,11 @@
         return data;
       }
 
+      tokenFactory.setTrays = function() {
+        var data = $http.put(tokenSetTraysUrl);
+        return data;
+      }
+
       tokenFactory.moveToken = function(move) {
         console.log(move);
         var data = $http({
@@ -75,12 +80,16 @@
     .controller('BoardCtrl', ['$scope','$http','$rootScope','tokenFactory',
                'statusService', function($scope,$http,$rootScope,tokenFactory, statusService) {
 
+      $scope.colSortOrder = 'col';
+      $scope.rowSortOrder = 'row';
+
       setInterval(function(){
         showBoard();
         $scope.turn = statusService.getTurn();
         $scope.loggedIn = ((teamColor=='red') || (teamColor=='blue'));
+        $scope.myColor = teamColor;
         // console.log('BoardCtrl logged in: ' + loggedIn );
-      }, 2000);
+      }, 3000);
 
       console.log('team color ' + teamColor);
       showBoard();
@@ -125,6 +134,27 @@
             // console.log('error: ' + error.message);
         })
       }
+
+      $scope.setRedTray = function() {
+        tokenFactory.setRedTray();
+      }
+
+      $scope.setBlueTray = function() {
+        tokenFactory.setBlueTray();
+      }
+
+      $scope.setRedField = function() {
+        tokenFactory.setRedField();
+      }
+
+      $scope.setBlueField = function() {
+        tokenFactory.setBlueField();
+      }
+
+      $scope.setTrays = function() {
+        tokenFactory.setTrays();
+      }
+
   }]);
 
   angular.module('warpApp')
@@ -192,7 +222,7 @@
         $scope.turn = statusService.getTurn();
         $scope.loggedIn = ((teamColor=='red') || (teamColor=='blue'));
         // console.log('PlayerCtrl logged in: ' + $scope.loggedIn );
-      }, 10000);
+      }, 3000);
 
       statusService.getRedPresence().then(function(resp) {
         console.log(resp.redpresent, 'red');
@@ -205,7 +235,6 @@
         $timeout(function() {
           console.log(args);
         })
-
       }
 
       statusService.getBluePresence().then(function(resp) {

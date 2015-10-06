@@ -112,29 +112,29 @@
       }
       // set up the dmz
       // left center
-      boardModel.update({'row': 5, 'col': 3 },{$set: {'tokenSpec': 'star-tl' }},function(error,tokens) {
+      boardModel.update({'row': 5, 'col': 3 },{$set: {'tokenSpec': 'star-tr' }},function(error,tokens) {
         if (error) return error;
       });
-      boardModel.update({'row': 5, 'col': 4 },{$set: {'tokenSpec': 'star-tr' }},function(error,tokens) {
+      boardModel.update({'row': 5, 'col': 4 },{$set: {'tokenSpec': 'star-tl' }},function(error,tokens) {
         if (error) return error;
       });
-      boardModel.update({'row': 6, 'col': 3 },{$set: {'tokenSpec': 'star-bl' }},function(error,tokens) {
+      boardModel.update({'row': 6, 'col': 3 },{$set: {'tokenSpec': 'star-br' }},function(error,tokens) {
         if (error) return error;
       });
-      boardModel.update({'row': 6, 'col': 4 },{$set: {'tokenSpec': 'star-br' }},function(error,tokens) {
+      boardModel.update({'row': 6, 'col': 4 },{$set: {'tokenSpec': 'star-bl' }},function(error,tokens) {
         if (error) return error;
       });
       // right center
-      boardModel.update({'row': 5, 'col': 7 },{$set: {'tokenSpec': 'star-tl' }},function(error,tokens) {
+      boardModel.update({'row': 5, 'col': 7 },{$set: {'tokenSpec': 'star-tr' }},function(error,tokens) {
         if (error) return error;
       });
-      boardModel.update({'row': 5, 'col': 8 },{$set: {'tokenSpec': 'star-tr' }},function(error,tokens) {
+      boardModel.update({'row': 5, 'col': 8 },{$set: {'tokenSpec': 'star-tl' }},function(error,tokens) {
         if (error) return error;
       });
-      boardModel.update({'row': 6, 'col': 7 },{$set: {'tokenSpec': 'star-bl' }},function(error,tokens) {
+      boardModel.update({'row': 6, 'col': 7 },{$set: {'tokenSpec': 'star-br' }},function(error,tokens) {
         if (error) return error;
       });
-      boardModel.update({'row': 6, 'col': 8 },{$set: {'tokenSpec': 'star-br' }},function(error,tokens) {
+      boardModel.update({'row': 6, 'col': 8 },{$set: {'tokenSpec': 'star-bl' }},function(error,tokens) {
         if (error) return error;
       });
     }
