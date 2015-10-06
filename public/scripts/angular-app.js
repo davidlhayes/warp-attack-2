@@ -1,4 +1,5 @@
   var teamColor = '';
+  var loggedIn = false;
   var heartBeat = 0;
   var mickey = {};
   var Turn;
@@ -27,6 +28,7 @@
 
       tokenFactory.getRedTokens = function() {
         var data = $http.get(tokenRedUrl);
+        console.log('getRedTokens');
         return data;
       }
 
@@ -72,18 +74,21 @@
   angular.module('warpApp')
     .controller('BoardCtrl', ['$scope','$http','$rootScope','tokenFactory',
                'statusService', function($scope,$http,$rootScope,tokenFactory, statusService) {
-      $scope.myColor = teamColor;
 
       setInterval(function(){
         showBoard();
         $scope.turn = statusService.getTurn();
+        $scope.loggedIn = ((teamColor=='red') || (teamColor=='blue'));
+        // console.log('BoardCtrl logged in: ' + loggedIn );
       }, 2000);
-      console.log($scope.myColor);
+
+      console.log('team color ' + teamColor);
       showBoard();
-      loggedIn();
+      $scope.loggedIn = loggedIn;
 
       function showBoard() {
-        if ($scope.myColor == 'blue') {
+        console.log('showBoard ' + teamColor);
+        if (teamColor == 'blue') {
         tokenFactory.getBlueTokens()
           .success(function(tokens) {
             $scope.leftTray = tokens.slice(100,140);
@@ -91,20 +96,20 @@
             $scope.rightTray = tokens.slice(140,180);
             // console.log(tokens);
           }).error(function(error) {
-            $scope.status = 'Unable to load token data: ' + error.message;
+            $scope.status = 'Unable to load token data: ' + error;
           });
         } else {
-          tokenFactory.getTokens()
+          tokenFactory.getRedTokens()
             .success(function(tokens) {
               $scope.leftTray = tokens.slice(100,140);
               $scope.board = tokens.slice(0,100);
               $scope.rightTray = tokens.slice(140,180);
               // console.log(tokens);
             }).error(function(error) {
-              $scope.status = 'Unable to load token data: ' + error.message;
+              $scope.status = 'Unable to load token data: ' + error;
             });
         }
-      }
+      };
 
       $scope.moveToken = function() {
         console.log('welcome to moveToken');
@@ -120,20 +125,10 @@
             // console.log('error: ' + error.message);
         })
       }
-
-      function loggedIn() {
-        $scope.myTeam = teamColor;
-        console.log('green');
-        if (($scope.myTeam == 'red') ||
-            ($scope.myTeam == 'blue')) {
-              $scope.loggedIn = true;
-        }
-      }
-
   }]);
 
   angular.module('warpApp')
-    .factory('statusService', [ '$http', function($http) {
+    .factory('statusService', [ '$http', '$q', function($http, $q) {
       return {
         getTurn: function(){
           var turn = 'setup';
@@ -141,25 +136,138 @@
             turn = data.turn;
           });
           return turn;
+        },
+        getMovement: function(){
+          $http.get('/players/movement').success(function(data) {
+            if (error) return error;
+            lastMovement = data.movement;
+          });
+          return lastMovement;
+        },
+        getRedPresence: function(){
+          var redPresent = false;
+          var defered = $q.defer();
+          $http.get('/players/redpresent').then(function(resp) {
+            redPresent = resp.data;
+            defered.resolve(redPresent);
+            // return redPresent;
+          }, function(error) {
+            return defered.reject();
+          });
+          return defered.promise;
+        },
+        getBluePresence: function(){
+          var bluePresent = false;
+          var defered = $q.defer();
+          $http.get('/players/bluepresent').then(function(resp) {
+            bluePresent = resp.data;
+            defered.resolve(bluePresent);
+          }, function(error) {
+            return defered.reject();
+          });
+          return defered.promise;
+        },
+        setRedPresence: function() {
+          $http.put('/players/setredpresence').success(function() {
+          });
+        },
+        setBluePresence: function() {
+          $http.put('/players/setbluepresence').success(function() {
+          });
+        },
+        endRedPresence: function() {
+          $http.put('/players/endredpresence').success(function() {
+          });
+        },
+        endBluePresence: function() {
+          $http.put('/players/endbluepresence').success(function() {
+          });
         }
       };
     }])
-    .controller('PlayerCtrl', ['$scope', '$route', '$http', 'statusService',
-                                                function($scope, $route, $http) {
+    .controller('PlayerCtrl', ['$scope', '$route', '$http', 'statusService', 'tokenFactory', '$timeout',
+                                  function($scope, $route, $http, statusService,tokenFactory, $timeout) {
+
+      setInterval(function(){
+        $scope.turn = statusService.getTurn();
+        $scope.loggedIn = ((teamColor=='red') || (teamColor=='blue'));
+        // console.log('PlayerCtrl logged in: ' + $scope.loggedIn );
+      }, 10000);
+
+      statusService.getRedPresence().then(function(resp) {
+        console.log(resp.redpresent, 'red');
+        $scope.redpresent = resp.redpresent;
+      }, function(error) {
+        console.log(error);
+      })
+      var x = {};
+      function xs(args) {
+        $timeout(function() {
+          console.log(args);
+        })
+
+      }
+
+      statusService.getBluePresence().then(function(resp) {
+        x = resp.bluepresent
+        xs(x);
+        console.log(resp.bluepresent, 'blue');
+        $scope.bluepresent = resp.bluepresent;
+      }, function(error) {
+        console.log(error);
+      })
+
+      // $scope.redpresent = true;
+      // $scope.loggedIn = true;
 
       $scope.showTurnStatus = function() {
-        $http.get('/players/turn').success(function(data) {
-          $scope.turn = statusService.getTurn();
-        });
+        $scope.turn = statusService.getTurn();
       };
 
       $scope.showMoveStatus = function() {
-        $http.get('/players/movement').success(function(data) {
-          $scope.movement = data.movement;
-        });
+        $scope.movement = statusService.getMovement();
       };
 
+      function showRedPresence() {
+        console.log('showRedPresence');
+        console.log(statusService.getRedPresence());
+      };
 
+      function showBluePresence() {
+        console.log('showBluePresence');
+        $scope.bluepresent = statusService.getBluePresence();
+      };
 
+      $scope.chooseRed = function() {
+        teamColor = 'red';
+        statusService.setRedPresence();
+      };
+
+      $scope.chooseBlue = function() {
+        teamColor = 'blue';
+        statusService.setBluePresence();
+      };
+
+      $scope.logOutRed = function() {
+        statusService.endRedPresence();
+        statusService.getRedPresence().then(function(resp) {
+          console.log(resp.redpresent, 'red');
+          $scope.redpresent = resp.redpresent;
+        }, function(error) {
+          console.log(error);
+        })
+      };
+
+      $scope.logOutBlue = function() {
+        statusService.endBluePresence();
+        statusService.getBluePresence().then(function(resp) {
+          x = resp.bluepresent
+          xs(x);
+          console.log(resp.bluepresent, 'blue');
+          $scope.bluepresent = resp.bluepresent;
+        }, function(error) {
+          console.log(error);
+        })
+      };
 
   }]);

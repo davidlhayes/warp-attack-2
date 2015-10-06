@@ -48,4 +48,49 @@
     });
   });
 
+  controller.get('/redpresent', function(req, res, next) {
+    playerModel.find(function(error,players) {
+      if (error) return error;
+      presence = { redpresent: players[0].red };
+      res.json(presence);
+    });
+  });
+
+  controller.get('/bluepresent', function(req, res, next) {
+    playerModel.find(function(error,players) {
+      if (error) return error;
+      presence = { bluepresent: players[0].blue };
+      res.json(presence);
+    });
+  });
+
+  controller.put('/setredpresence', function(req, res, next) {
+    playerModel.update({red: true},function(error,players) {
+      if (error) return error;
+      res.json({ message: 'success'});
+    });
+  });
+
+  controller.put('/endredpresence', function(req, res, next) {
+    playerModel.update({red: false},function(error,players) {
+      if (error) return error;
+      res.json({ message: 'success'});
+    });
+  });
+
+  controller.put('/setbluepresence', function(req, res, next) {
+    playerModel.update({blue:true},function(error,players) {
+      if (error) return error;
+      res.json({ message: 'success'});
+    });
+  });
+
+  controller.put('/endbluepresence', function(req, res, next) {
+    playerModel.update({blue:false},function(error,players) {
+      console.log('endbluepresence');
+      if (error) return error;
+      res.json({ message: 'success'});
+    });
+  });
+
 module.exports = controller;

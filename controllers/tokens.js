@@ -337,8 +337,8 @@
       // send out a reversed board;
 
       // console.log(t);
-      console.log('get red');
-      res.json(hideTokens.hideTokens(tokens));
+      // console.log('red',hideTokens.hideTokens(tokens));
+      res.json(hideTokens.hideTokens('red',tokens));
     });
   });
 

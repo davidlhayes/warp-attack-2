@@ -28,10 +28,10 @@
       <div class="row" ng-show=loggedIn>
 
         <div class="tray-col left">
-          <div class="tray battle" >
+          <div class="tray battle">
             <div class="tray-cell cell" ng-repeat="space in leftTray | orderBy: 'row' | orderBy: 'col' "
-              id="r{{space.row}}c{{space.col}}"  ng-click="tellMe()" >
-               <div class="token {{space.tokenSpec}}" >{{space.tokenSpec.charAt(1).toUpperCase()}}</div>
+              id="r{{space.row}}c{{space.col}}"  ng-click="tellMe()">
+               <div class="token {{space.tokenSpec}}">{{space.tokenSpec.charAt(1).toUpperCase()}}</div>
             </div>
           </div>
         </div>
@@ -79,7 +79,7 @@
 
       </div> <!-- end board row -->
 
-      <div class="login" ng-hide=loggedIn>
+      <div class="login" ng-hide=loggedIn ng-controller="PlayerCtrl">
         <div class="row flags">
           <div class="login-col">
             <div id="blue-flag"></div>
@@ -94,25 +94,18 @@
 
         <div class="row buttons">
           <div id="blue-button-col">
-            <button>Choose Blue</button>
-            <h3>WAITING TO<br>PLAY YOU</h3>
-            <button>Log Out</button>
+            <button ng-hide=bluepresent ng-click=chooseBlue()>Choose Blue</button>
+            <h3 ng-show=bluepresent>WAITING TO<br>PLAY YOU</h3>
+            <button ng-show=bluepresent ng-click=logOutBlue()>Log Out</button>
           </div>
           <div id="red-button-col">
-            <button>Choose Red</button>
-            <h3>WAITING TO<br>PLAY YOU</h3>
-            <button>Log Out</button>
+            <button ng-hide=redpresent ng-click=chooseRed()>Choose Red</button>
+            <h3 ng-show=redpresent>WAITING TO<br>PLAY YOU</h3>
+            <button ng-show=redpresent ng-click=logOutRed()>Log Out</button>
           </div>
         </div>
+        <div class="controls"><p>HERE {{loggedIn}}</p></div>
       </div>
-
-
-
-
-
-
-
-
 
       <!-- <div class="controls" ng-controller="PlayerCtrl">
       <button ng-click="incrTimer()">GET STATUS</button>

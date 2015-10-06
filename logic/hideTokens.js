@@ -9,6 +9,8 @@
     hideTokens: function(player,o) {
       var temp;
       var repl;
+
+      console.log('hideTokens');
       if (player == 'blue') {
         repl = 'rback';
         ltr = 'r';
@@ -16,11 +18,14 @@
         repl = 'bback';
         ltr = 'b'
       }
-      for (var i=0;i<100;i++) {
-        if (o[i].tokenSpec.charAt(1) == ltr) {
-            o[i].tokenSpec = repl;
+      for (var key in o) {
+
+          if ((o[key].row < 100) && (o[key].tokenSpec.charAt(0) == ltr)) {
+            o[key].tokenSpec = repl;
         }
       }
+
       return o;
+
     }
   }
