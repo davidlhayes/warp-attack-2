@@ -35,7 +35,7 @@
       // its current column or its current row
       // that means we have to check for obstructions and make sure its a column
       // move OR a row move
-      if (orgSpec.charAt(0)=='9') {
+      if (orgSpec.charAt(1)=='9') {
         spc = 9;
       } else {
         spc = 1;
@@ -43,14 +43,14 @@
       if ((orgRow != dstRow) && (orgCol != dstCol)) {
         return 'illegal diagonal move';
       }
-      if ((MATH.abs(orgRow-dstRow) > spc) || (MATH.abs(orgCol-dstCol) > spc)) {
+      if ((Math.abs(orgRow-dstRow) > spc) || (Math.abs(orgCol-dstCol) > spc)) {
         return 'too many space to move';
       }
       // check for obstructions if this is long trip
       if (spc > 1) {
         // column move
         if (orgRow != dstRow) {
-          if (MATH.abs(dstRow-orgRow) > 1) {
+          if (Math.abs(dstRow-orgRow) > 1) {
             if (dstRow > orgRow) {
               maxBnd = dstRow;
               minBnd = orgRow;
@@ -69,7 +69,7 @@
           }
           // row move
         } else if (orgCol != dstCol) {
-          if (MATH.abs(dstCol-orgCol) > 1) {
+          if (Math.abs(dstCol-orgCol) > 1) {
             if (dstCol > orgCol) {
               maxBnd = dstCol;
               minBnd = orgCol;
@@ -94,23 +94,23 @@
       // BATTLE!!!
       // Special cases first
       // Spy beats Rank 1
-      if ((orgSpec.CharAt(1) == '1') && (dstSpec.CharAt(1) == 's')) return 'defeat';
-      if ((orgSpec.CharAt(1) == 's') && (dstSpec.CharAt(1) == '1')) return 'victory';
+      if ((orgSpec.charAt(1) == '1') && (dstSpec.charAt(1) == 's')) return 'defeat';
+      if ((orgSpec.charAt(1) == 's') && (dstSpec.charAt(1) == '1')) return 'victory';
       // Mine beats anything but rank 8 (mine can only be at destination)
-      if (dstSpec.CharAt(1) == 'm') {
-        if (orgSpec.CharAt(1) == '8') {
+      if (dstSpec.charAt(1) == 'm') {
+        if (orgSpec.charAt(1) == '8') {
           return 'defeat';
         } else {
           return 'victory';
         }
       }
       // check for flag
-      if (dstSpec.CharAt(1) == 'f') return 'win';
+      if (dstSpec.charAt(1) == 'f') return 'win';
       // if you got this far, we're just comparing rank. Low beats high, but
       // equal rank takes out both
-      if (orgSpec.CharAt(1) == dstSpec.CharAt(1)) return 'double defeat';
+      if (orgSpec.charAt(1) == dstSpec.charAt(1)) return 'double defeat';
       // and...finally, low rank wins
-      if (orgSpec.CharAt(1) < dstSpec.CharAt(1)) {
+      if (orgSpec.charAt(1) < dstSpec.charAt(1)) {
         return 'victory';
       } else {
         return 'defeat';

@@ -10,7 +10,7 @@
       var temp;
       var repl;
 
-      console.log('hideTokens');
+      // console.log('hideTokens');
       if (player == 'blue') {
         repl = 'rback';
         ltr = 'r';
@@ -20,7 +20,7 @@
       }
       for (var key in o) {
 
-          if ((o[key].row < 100) && (o[key].tokenSpec.charAt(0) == ltr)) {
+          if (o[key].tokenSpec.charAt(0) == ltr) {
             o[key].tokenSpec = repl;
         }
       }

@@ -1,8 +1,6 @@
   var teamColor = '';
   var loggedIn = false;
   var heartBeat = 0;
-  var mickey = {};
-  var Turn;
   // delcare app
   var app = angular.module('warpApp', ['ngRoute', 'ngResource']);
 
@@ -18,6 +16,7 @@
       var tokenSetBlueTrayUrl = '/tokens/bluetray';
       var tokenSetBlueFieldUrl = '/tokens/bluefield';
       var tokenMoveTokenUrl = '/tokens/move';
+      var playerTurnUrl = '/players/turn';
 
       var tokenFactory = { };
 
@@ -71,6 +70,7 @@
           headers: {'Content-Type': 'application/x-www-form-urlencoded'}
           });
         return data;
+        console.log('data ' + data);
       }
 
       return tokenFactory;
@@ -82,21 +82,29 @@
 
       $scope.colSortOrder = 'col';
       $scope.rowSortOrder = 'row';
+      var activecell = { row: 0, col: 0}
+
+      $scope.getTurn = function() {
+        var data = $http.get('/players/turn').then(function(res) {
+        $scope.turn = res.data.turn;
+        return res.data.turn;
+      })
+    };
 
       setInterval(function(){
         showBoard();
-        $scope.turn = statusService.getTurn();
+        $scope.getTurn();
         $scope.loggedIn = ((teamColor=='red') || (teamColor=='blue'));
         $scope.myColor = teamColor;
         // console.log('BoardCtrl logged in: ' + loggedIn );
-      }, 3000);
+      }, 10000);
 
       console.log('team color ' + teamColor);
       showBoard();
       $scope.loggedIn = loggedIn;
 
       function showBoard() {
-        console.log('showBoard ' + teamColor);
+        // console.log('showBoard ' + teamColor);
         if (teamColor == 'blue') {
         tokenFactory.getBlueTokens()
           .success(function(tokens) {
@@ -122,11 +130,27 @@
 
       $scope.moveToken = function() {
         console.log('welcome to moveToken');
+
+        if (teamColor=='blue') {
+          if (oRow < 11) {
+            var oRow = 11-$scope.orgRow;
+            var oCol = 11-$scope.orgCol;
+          }
+          if (drow < 11) {
+            var dRow = 11-$scope.dstRow;
+            var dCol = 11-$scope.dstCol;
+          }
+        } else {
+          var oRow = $scope.orgRow;
+          var oCol = $scope.orgCol;
+          var dRow = $scope.dstRow;
+          var dCol = $scope.dstDst;
+        }
           var data = $.param({
-                  orgRow: $scope.orgRow,
-                  orgCol: $scope.orgCol,
-                  dstRow: $scope.dstRow,
-                  dstCol: $scope.dstCol})
+                  orgRow: oRow,
+                  orgCol: oCol,
+                  dstRow: dRow,
+                  dstCol: dCol})
           tokenFactory.moveToken(data).success(function() {
             // console.log('sucessful move');
             // showBoard();
@@ -155,18 +179,56 @@
         tokenFactory.setTrays();
       }
 
+      $scope.isActive = function(cell) {
+        if ((cell.row==activecell.row)
+         &&((cell.col==activecell.col)))
+         {
+          return true;
+        }
+      }
+      $scope.activate = function(cell) {
+        console.log('I AM HERE');
+        if ((activecell.row != 0) && (activecell.col !=0)) {
+          console.log($scope.orgRow, $scope.orgCol);
+          if (teamColor=='blue') {
+            if (oRow < 11) {
+              var oRow = 11-$scope.orgRow;
+              var oCol = 11-$scope.orgCol;
+            }
+            if (drow < 11) {
+              var dRow = 11-$scope.dstRow;
+              var dCol = 11-$scope.dstCol;
+            }
+          } else {
+            var oRow = $scope.orgRow;
+            var oCol = $scope.orgCol;
+            var dRow = $scope.dstRow;
+            var dCol = $scope.dstDst;
+          }
+          console.log($scope.orgRow, $scope.orgCol);
+            var data = $.param({
+                    orgRow: activecell.row,
+                    orgCol: activecell.col,
+                    dstRow: cell.row,
+                    dstCol: cell.col})
+            tokenFactory.moveToken(data).success(function(){
+              console.log('hey');
+            });
+              // console.log('error: ' + error.message);
+              activecell.row = 0;
+              activecell.col = 0;
+        } else {
+          console.log(cell.row, cell.col);
+          activecell.row = cell.row;
+          activecell.col = cell.col;
+        }
+      }
+
   }]);
 
   angular.module('warpApp')
     .factory('statusService', [ '$http', '$q', function($http, $q) {
       return {
-        getTurn: function(){
-          var turn = 'setup';
-          $http.get('/players/turn').success(function(data) {
-            turn = data.turn;
-          });
-          return turn;
-        },
         getMovement: function(){
           $http.get('/players/movement').success(function(data) {
             if (error) return error;
@@ -213,16 +275,27 @@
           $http.put('/players/endbluepresence').success(function() {
           });
         }
-      };
+        }
     }])
     .controller('PlayerCtrl', ['$scope', '$route', '$http', 'statusService', 'tokenFactory', '$timeout',
                                   function($scope, $route, $http, statusService,tokenFactory, $timeout) {
 
+      $scope.getTurn = function() {
+          var data = $http.get('/players/turn').then(function(res) {
+          $scope.turn = res.data.turn;
+          console.log('getTurn');
+          console.log($scope.turn);
+          return res.data.turn;
+        })
+      };
+
       setInterval(function(){
-        $scope.turn = statusService.getTurn();
+        $scope.turn = $scope.getTurn();
+        console.log('setInterval');
+        console.log($scope.turn);
         $scope.loggedIn = ((teamColor=='red') || (teamColor=='blue'));
-        // console.log('PlayerCtrl logged in: ' + $scope.loggedIn );
-      }, 3000);
+
+      }, 10000);
 
       statusService.getRedPresence().then(function(resp) {
         console.log(resp.redpresent, 'red');
@@ -245,13 +318,6 @@
       }, function(error) {
         console.log(error);
       })
-
-      // $scope.redpresent = true;
-      // $scope.loggedIn = true;
-
-      $scope.showTurnStatus = function() {
-        $scope.turn = statusService.getTurn();
-      };
 
       $scope.showMoveStatus = function() {
         $scope.movement = statusService.getMovement();

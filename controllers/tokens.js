@@ -7,7 +7,8 @@
   var playerModel = require('../models/Player');
   var hideTokens = require('../logic/hideTokens');
   var checkSet = require('../logic/checkSet');
-  var checkMove = require('../logic/checkMove')
+  var checkMove = require('../logic/checkMove');
+  var emptyTrayId = require('../logic/emptyTrayId');
 
   // Board API -- set board tokens, move tokens (as governed by game rules)
  //  and get token placement information
@@ -112,29 +113,29 @@
       }
       // set up the dmz
       // left center
-      boardModel.update({'row': 5, 'col': 3 },{$set: {'tokenSpec': 'star-tr' }},function(error,tokens) {
+      boardModel.update({'row': 5, 'col': 3 },{$set: {'tokenSpec': 'star-tl' }},function(error,tokens) {
         if (error) return error;
       });
-      boardModel.update({'row': 5, 'col': 4 },{$set: {'tokenSpec': 'star-tl' }},function(error,tokens) {
+      boardModel.update({'row': 5, 'col': 4 },{$set: {'tokenSpec': 'star-tr' }},function(error,tokens) {
         if (error) return error;
       });
-      boardModel.update({'row': 6, 'col': 3 },{$set: {'tokenSpec': 'star-br' }},function(error,tokens) {
+      boardModel.update({'row': 6, 'col': 3 },{$set: {'tokenSpec': 'star-bl' }},function(error,tokens) {
         if (error) return error;
       });
-      boardModel.update({'row': 6, 'col': 4 },{$set: {'tokenSpec': 'star-bl' }},function(error,tokens) {
+      boardModel.update({'row': 6, 'col': 4 },{$set: {'tokenSpec': 'star-br' }},function(error,tokens) {
         if (error) return error;
       });
       // right center
-      boardModel.update({'row': 5, 'col': 7 },{$set: {'tokenSpec': 'star-tr' }},function(error,tokens) {
+      boardModel.update({'row': 5, 'col': 7 },{$set: {'tokenSpec': 'star-tl' }},function(error,tokens) {
         if (error) return error;
       });
-      boardModel.update({'row': 5, 'col': 8 },{$set: {'tokenSpec': 'star-tl' }},function(error,tokens) {
+      boardModel.update({'row': 5, 'col': 8 },{$set: {'tokenSpec': 'star-tr' }},function(error,tokens) {
         if (error) return error;
       });
-      boardModel.update({'row': 6, 'col': 7 },{$set: {'tokenSpec': 'star-br' }},function(error,tokens) {
+      boardModel.update({'row': 6, 'col': 7 },{$set: {'tokenSpec': 'star-bl' }},function(error,tokens) {
         if (error) return error;
       });
-      boardModel.update({'row': 6, 'col': 8 },{$set: {'tokenSpec': 'star-bl' }},function(error,tokens) {
+      boardModel.update({'row': 6, 'col': 8 },{$set: {'tokenSpec': 'star-br' }},function(error,tokens) {
         if (error) return error;
       });
     }
@@ -323,7 +324,7 @@
       // send out a reversed board;
       // var t = transform.transformBlue(tokens);
       // replace red tokens with red backs
-      console.log('get blue');
+      // console.log('get blue');
       // console.log(hideTokens.hideTokens('blue',tokens));
       res.json(hideTokens.hideTokens('blue',transform.transformBlue(tokens)));
       // res.json(tokens);
@@ -351,33 +352,26 @@
     var dstRow = req.body.dstRow;
     var dstCol = req.body.dstCol;
     var orgId;
-    // console.log('token.js ' + orgRow, orgCol, dstRow, dstCol);
+    var samespace = false;
+    console.log('token.js ' + orgRow, orgCol, dstRow, dstCol);
     // what mode are we in
     playerModel.find(function(error,players) {
       if (error) return error;
       var isSetup = (players[0].turn=='setup');
       // if player is blue, board was rotated => transform
       // coordinatesbefore proceeding
-      if (players[0].turn = 'blue') {
-        if (orgRow <= 10) {
-          orgRow = 11 - orgRow;
-          orgCol = 11 - orgCol;
-        };
-        if (dstRow <= 10) {
-          dstRow = 11 - dstRow;
-          dstCol = 11 - dstCol;
-        }
-      };
-      // res.json(players);
-      console.log(players);
+      // console.log('tokens.js turn:' +players[0].turn);
 
+      // res.json(players);
+      // console.log(players);÷
     // first get the id of the mover
       boardModel.find(
         { row: orgRow, col: orgCol },function(error, result) {
           if (error) return error;
           orgId = result[0]._id;
           orgSpec = result[0].tokenSpec;
-          // console.log('org ' + orgId, orgSpec);
+          // transform coordinates back from rotated board;
+            console.log('token.js ' + orgRow, orgCol, dstRow, dstCol);
           // res.json(result);
     // get the id of the prey
           boardModel.find({ row: dstRow, col: dstCol }, function(error, result) {
@@ -392,6 +386,14 @@
               var moveResult = checkMove.checkMove(orgRow,orgCol,orgSpec,dstRow,dstCol,dstSpec);
             }
             switch(moveResult) {
+              case 'same square':
+              case 'forbidden':
+              case 'immovable':
+              case 'mover out of bounds':
+              case 'destination out of bounds':
+              case 'out of bounds':
+                samespace = true;
+                break;
               case 'move to empty space':
                 // swap empty with mover
                 console.log('here');
@@ -405,6 +407,7 @@
                 });
                 break;
               case 'victory':
+
                 // swap org and dst
                 boardModel.findByIdAndUpdate(dstId,
                   { 'tokenSpec': orgSpec }, function(error, result) {
@@ -415,7 +418,7 @@
                     })
                   });
                 // move loser to empty space in appropriate tray
-                boardModel.findByIdAndUpdate(emptyTrayId(dstSpec.chatAt(0)),
+                boardModel.findByIdAndUpdate(emptyTrayId.emptyTrayId(dstSpec.charAt(0)),
                   { 'tokenSpec': dstSpec }, function(error, result) {
                     if (error) return error;
                   });
@@ -431,7 +434,7 @@
                     if (error) return error;
                 });
                 // move loser to empty space in appropriate tray
-                boardModel.findByIdAndUpdate(emptyTrayId(dstSpec.chatAt(0)),
+                boardModel.findByIdAndUpdate(emptyTrayId.emptyTrayId(dstSpec.charAt(0)),
                   { 'tokenSpec': dstSpec }, function(error, result) {
                     if (error) return error;
                   });
@@ -443,7 +446,7 @@
                     if (error) return error;
                   });
                 // move loser to empty space in appropriate tray
-                boardModel.findByIdAndUpdate(emptyTrayId(orgSpec.chatAt(0)),
+                boardModel.findByIdAndUpdate(emptyTrayId.emptyTrayId(orgSpec.charAt(0)),
                   { 'tokenSpec': orgSpec }, function(error, result) {
                     if (error) return error;
                   });
@@ -455,7 +458,7 @@
                   { 'tokenSpec': 'empty'}, function(error, result) {
                     if (error) return error;
                   });
-                boardModel.findByIdAndUpdate(emptyTrayId(orgSpec.chatAt(0)),
+                boardModel.findByIdAndUpdate(emptyTrayId.emptyTrayId(orgSpec.charAt(0)),
                   { 'tokenSpec': orgSpec }, function(error, result) {
                     if (error) return error;
                   });
@@ -464,7 +467,7 @@
                   { 'tokenSpec': 'empty'}, function(error, result) {
                     if (error) return error;
                   });
-                boardModel.findByIdAndUpdate(emptyTrayId(dstSpec.chatAt(0)),
+                boardModel.findByIdAndUpdate(emptyTrayId.emptyTrayId(dstSpec.charAt(0)),
                   { 'tokenSpec': dstSpec }, function(error, result) {
                     if (error) return error;
                   });
@@ -475,9 +478,26 @@
             }
             console.log('488: ' + orgRow,orgCol,orgSpec,dstRow,dstCol,dstSpec,moveResult);
           });
+          // if move happened, update Turn
+          console.log(samespace);
+          // if (!(samespace)) {
+          //   if (players[0].turn == 'blue') {
+          //     nextTurn = 'red';
+          //   } else {
+          //     nextTurn = 'blue';
+          //   }
+          //   console.log('UPDATING TURN 498 tokens.js');
+            // playerModel.update({ turn: nextTurn}, function(error, result) {
+            //   if (error) return error;
+            //   playerModel.find(function(error,players) {
+            //     if (error) return error;
+            //     console.log('tokens 503 : ' + players);
+            //   });
+            // });
+          // }
       });
     });
-  }); <!-- controller move token -->
+  }); // controller move token
 
   // get by Id
   controller.get('/:id', function(req, res, next) {

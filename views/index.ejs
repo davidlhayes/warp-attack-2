@@ -29,8 +29,8 @@
 
         <div class="tray-col left">
           <div class="tray battle">
-            <div class="tray-cell cell" ng-repeat="space in leftTray | orderBy: 'row' | orderBy: 'col' "
-              id="r{{space.row}}c{{space.col}}"  ng-click="tellMe()">
+            <div class="tray-cell cell" ng-class="{active : isActive(space)}" ng-repeat="space in leftTray | orderBy: 'row' | orderBy: 'col' "
+              id="r{{space.row}}c{{space.col}}"  ng-click="activate(space)">
                <div class="token {{space.tokenSpec}}">{{space.tokenSpec.charAt(1).toUpperCase()}}</div>
             </div>
           </div>
@@ -43,7 +43,7 @@
 
         <div class="board-col">
           <div class="main battle">
-            <div class="board-cell cell" ng-repeat="space in board | orderBy: colSortOrder | orderBy: rowSortOrder" id="r{{space.row}}c{{space.col}}" ng-click="tellMe()">
+            <div class="board-cell cell" ng-class="{active : isActive(space)}" ng-repeat="space in board | orderBy: colSortOrder | orderBy: rowSortOrder" id="r{{space.row}}c{{space.col}}" ng-click="activate(space)">
                   <div class="token {{space.tokenSpec}}">{{space.tokenSpec.charAt(1).toUpperCase()}}</div>
             </div>
           </div>
@@ -56,14 +56,14 @@
 
         <div class="tray-col">
           <div class="tray battle">
-            <div class="tray-cell cell" ng-repeat="space in rightTray  | orderBy: 'row' | orderBy: 'col' " id="r{{space.row}}c{{space.col}}" ng-click="tellMe()">
+            <div class="tray-cell cell" ng-class="{active : isActive(space)}" ng-repeat="space in rightTray  | orderBy: 'row' | orderBy: 'col' " id="r{{space.row}}c{{space.col}}" ng-click="activate(space)">
                <div class="token {{space.tokenSpec}}">{{space.tokenSpec.charAt(1).toUpperCase()}}</div>
             </div>
           </div>
         </div>
 
         <!-- <button class="btn btn-default" ng-click="switchIt(true)">SWITCH</button> -->
-        <div class="controls">
+        <!-- <div class="controls">
           <input type="text" placeholder="origin row" ng-model="orgRow">
           <input type="text" placeholder="origin col" ng-model="orgCol">
           <input type="text" placeholder="destination row" ng-model="dstRow">
@@ -72,7 +72,8 @@
           <br>
           <p>Color: {{myColor}}</p>
           <button ng-click="setTrays()">SET TRAYS</button>
-        </div>
+          <input type="text" ng-model=turn>
+        </div> -->
 
 
 
@@ -105,9 +106,9 @@
         </div>
       </div>
 
-      <div class="controls" ng-controller="PlayerCtrl" ng-show="loggedIn">
+      <!-- <div class="controls" ng-controller="PlayerCtrl" ng-show="loggedIn">
         <p>Turn: {{turn}} Last: Movement: {{movement}}</p>
-      </div>
+      </div> -->
     </div>
   </body>
 </html>

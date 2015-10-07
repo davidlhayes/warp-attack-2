@@ -13,6 +13,7 @@
 @battleBorderColor: rgba(240,207,61,1);
 @invisible: rgba(255,255,255,0);
 @alertFontColor: rgba(0, 255, 224, 1);
+@cellHighlightColor: rgba(255,255,255,.8);
 
 // Bootstrap replacements
 * {
@@ -145,6 +146,9 @@ h1 {
   padding-top: 2px;
   padding-right: 2px;
   color: rgba(240, 207, 61,.75);
+}
+.active {
+  background-color: @cellHighlightColor;
 }
 // flags for login-screen
 #blue-flag {
